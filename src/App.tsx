@@ -18,28 +18,13 @@ type OBJ = {
   isDeleted: boolean
 }
 
-interface ObjectFromArray {
-  [key: string]: OBJ
-}
-
-function convertArrayToObject(data: Array<OBJ>): ObjectFromArray{
-  //Так просто будет удобнее перебирать данные в будущем - когда не будем перебирать массив каждый раз,
-  //а когда будем обращаться к нему по ключу
-  let obj: ObjectFromArray = {}
-  for(let i = 0; i < data.length; i++){
-    obj[data[i].ProductID] = data[i]
-  }
-  return obj
-}
 
 function generateCards(data: Array<OBJ>): JSX.Element{
-  let convertedOBJ = convertArrayToObject(data)
-  let arrayCards = data.map((elem, key) => elem.isDeleted? <></>:<Card ProductName={elem.Name}
+  let arrayCards = data.map((elem, key) => !elem.isDeleted && elem.ParentID === null? <Card ProductName={elem.Name}
+                                                                                            data={data}
                                                                                      Description={elem.descriptionru}
-                                                                                     HaveParents={elem.ParentID === null}
                                                                                      key={key}
-                                                                                     data={convertedOBJ}
-                                                                                     ProductID={elem.ProductID}/>)
+                                                                                     ProductID={elem.ProductID}/>:<></>)
   return <>{arrayCards}</>
 }
 

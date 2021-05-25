@@ -35,9 +35,8 @@ const ProductButton = styled.button`
 type Props = {
     ProductName: string,
     Description: string,
-    HaveParents: boolean
-    data: ObjectFromArray
-    ProductID: string
+    ProductID: string,
+    data: Array<OBJ>
 }
 
 type OBJ = {
@@ -54,41 +53,27 @@ type OBJ = {
     isDeleted: boolean
 }
 
-interface ObjectFromArray {
-    [key: string]: OBJ
+const findAllChildren = (data: Array<OBJ>, ParentID:string): Array<OBJ> => {
+    return data.filter(elem => elem.ParentID === ParentID)
+}
+const createChildrenCards = (data: Array<OBJ>) => {
+    return data.map(elem => <CardTemplate>
+        <ProductField>Product name: {elem.Name}</ProductField>
+        <ProductField>Type: {elem.Type}</ProductField>
+        <ProductField>Description: {elem.Name}</ProductField>
+    </CardTemplate>)
 }
 
-const findAllParents = (data: ObjectFromArray, productID: string): Array<OBJ> => {
-    let arrayParents: Array<OBJ> = []
-    if(data[productID]?.ParentID){
-        arrayParents.push(...findAllParents(data, data[productID].ParentID as string))
-    }
-    return [data[productID], ...arrayParents]
-}
-
-const ShowAllParents = (array: Array<OBJ>): JSX.Element => {
-    return <>{array.map(elem =>
-        elem?.Name === undefined? 'Элемент не найден в базе':
-            <CardTemplate>
-                <ProductField>Product name: {elem.Name}</ProductField>
-                <ProductField>Description: {elem.descriptionru}</ProductField>
-                <ProductField>ProductID: {elem.ProductID}</ProductField>
-                <ProductField>ParentID: {elem.ParentID}</ProductField>
-            </CardTemplate>
-    )
-    }</>
-}
-
-export default function Card({ProductName, Description, HaveParents, data, ProductID}: Props){
-    const [showParent, setShowParents] = useState(false)
-    const Parents = findAllParents(data, ProductID).slice(1)
+export default function Card({ProductName, Description, ProductID, data}: Props){
+    const [showChildren, setShowChildren] = useState(false)
+    const children = findAllChildren(data, ProductID)
+    const childrenCards = createChildrenCards(children)
     return (
         <CardTemplate>
             <ProductField>Product name: {ProductName}</ProductField>
             <ProductField>Description: {Description}</ProductField>
-            <ProductField>ParentID: {data[ProductID].ParentID}</ProductField>
-            {Parents.length !== 0?<ProductButton onClick={()=>{setShowParents(!showParent)}}>{showParent? 'Hide': 'Show'} parent(s)</ProductButton>:''}
-            {showParent? ShowAllParents(Parents):''}
+            {children.length!==0?<ProductButton onClick={()=>{setShowChildren(!showChildren)}}>{showChildren?'Hide':'Show'} children</ProductButton>:''}
+            {showChildren? childrenCards:''}
         </CardTemplate>
     )
 }
